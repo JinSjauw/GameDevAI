@@ -16,7 +16,7 @@ namespace BehaviourTree
         protected NodeState state;
 
         public BTNode parent;
-        protected List<BTNode> children;
+        protected List<BTNode> children = new List<BTNode>();
 
         private Dictionary<string, object> dataContext = new Dictionary<string, object>();
         
@@ -43,7 +43,7 @@ namespace BehaviourTree
 
         public void SetData(string key, object value)
         {
-            
+            dataContext[key] = value;
         }
 
         public object GetData(string key)
