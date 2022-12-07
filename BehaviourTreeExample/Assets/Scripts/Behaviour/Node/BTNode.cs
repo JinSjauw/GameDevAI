@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
+using System.Xml.Serialization;
 
 namespace BehaviourTree
 {
@@ -13,16 +13,16 @@ namespace BehaviourTree
 
     public class BTNode
     {
-        protected NodeState state;
+        protected NodeState _state;
 
-        public BTNode parent;
-        protected List<BTNode> children = new List<BTNode>();
-
-        private Dictionary<string, object> dataContext = new Dictionary<string, object>();
+        public BTNode _parent;
+        protected List<BTNode> _children = new List<BTNode>();
+        
+        private Dictionary<string, object> _dataContext = new Dictionary<string, object>();
         
         public BTNode()
         {
-            parent = null;
+            _parent = null;
         }
 
         public BTNode(List<BTNode> children)
@@ -35,26 +35,51 @@ namespace BehaviourTree
 
         private void Attach(BTNode node)
         {
-            node.parent = this;
-            children.Add(node);
+            node._parent = this;
+            _children.Add(node);
         }
 
         public virtual NodeState Evaluate() => NodeState.FAILURE;
 
+        public Dictionary<string, object> GetDataContext()
+        {
+            return _dataContext;
+        }
+        
         public void SetData(string key, object value)
         {
-            dataContext[key] = value;
+            _dataContext[key] = value;
+        }
+        
+        public bool SetRootData(string key, object value)
+        {
+            BTNode node = _parent;
+            
+            while (node != null)
+            {
+                if (node._parent == null)
+                {
+                    node.SetData(key, value);
+                    return true;
+                }
+                else
+                {
+                    node = node._parent;
+                }
+            }
+            
+            return false;
         }
 
         public object GetData(string key)
         {
             object value = null;
-            if (dataContext.TryGetValue(key, out value))
+            if (_dataContext.TryGetValue(key, out value))
             {
                 return value;
             }
 
-            BTNode node = parent;
+            BTNode node = _parent;
             while ( node != null)
             {
                 value = node.GetData(key);
@@ -62,20 +87,20 @@ namespace BehaviourTree
                 {
                     return value;
                 }
-                node = node.parent;
+                node = node._parent;
             }
             return null;
         }
         
         public bool ClearData(string key)
         {
-            if (dataContext.ContainsKey(key))
+            if (_dataContext.ContainsKey(key))
             {
-                dataContext.Remove(key);
+                _dataContext.Remove(key);
                 return true;
             }
 
-            BTNode node = parent;
+            BTNode node = _parent;
             while ( node != null)
             {
                 bool cleared = node.ClearData(key);
@@ -83,7 +108,7 @@ namespace BehaviourTree
                 {
                     return true;
                 }
-                node = node.parent;
+                node = node._parent;
             }
             return false;
         }

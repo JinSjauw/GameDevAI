@@ -14,27 +14,27 @@ namespace BehaviourTree
         {
             bool anyChildRunning = false;
 
-            foreach (BTNode node in children)
+            foreach (BTNode node in _children)
             {
                 switch (node.Evaluate())
                 {
                     case NodeState.FAILURE:
-                        state = NodeState.FAILURE;
-                        return state;
+                        _state = NodeState.FAILURE;
+                        return _state;
                     case NodeState.SUCCESS:
-                        state = NodeState.SUCCESS;
+                        _state = NodeState.SUCCESS;
                         continue;
                     case NodeState.RUNNING:
                         anyChildRunning = true;
                         continue;
                     default:
-                        state = NodeState.SUCCESS;
-                        return state;
+                        _state = NodeState.SUCCESS;
+                        return _state;
                 }
             }
 
-            state = anyChildRunning ? NodeState.RUNNING : NodeState.SUCCESS;
-            return state;
+            _state = anyChildRunning ? NodeState.RUNNING : NodeState.SUCCESS;
+            return _state;
         }
     }    
 }

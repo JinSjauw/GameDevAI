@@ -37,8 +37,9 @@ public class PatrolTask : BTNode
       }
       else
       {
+         //Return waypoint;
          Transform wp = _wayPoints[_currentWaypointIndex];
-         if (Vector3.Distance(_transform.position, wp.position) < 0.01f)
+         if (Vector3.Distance(_transform.position, wp.position) < 0.05f)
          {
             _transform.position = wp.position;
             _waitCounter = 0f;
@@ -49,9 +50,8 @@ public class PatrolTask : BTNode
             
             _currentWaypointIndex = (_currentWaypointIndex + 1) % _wayPoints.Length;
 
-            state = NodeState.SUCCESS;
-            return state;
-
+            _state = NodeState.SUCCESS;
+            return _state;
          }
          else
          {
@@ -64,7 +64,7 @@ public class PatrolTask : BTNode
             _transform.LookAt(wp.position);
          }
       }
-      state = NodeState.RUNNING;
-      return state;
+      _state = NodeState.RUNNING;
+      return _state;
    }
 }

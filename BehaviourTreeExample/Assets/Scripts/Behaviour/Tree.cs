@@ -8,10 +8,10 @@ namespace BehaviourTree
     public abstract class Tree : MonoBehaviour
     {
         private BTNode root = null;
-
+        
         protected void Start()
         {
-            root = RunTree();
+            root = InitTree();
         }
 
         private void Update()
@@ -19,9 +19,10 @@ namespace BehaviourTree
             if (root != null)
             {
                 root.Evaluate();
+                //Debug.Log(root.GetData("target"));
             }
         }
-        protected abstract BTNode RunTree();
+        protected abstract BTNode InitTree();
     }
 }
 
