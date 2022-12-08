@@ -11,15 +11,16 @@ public class PatrolTask : BTNode
    
    private int _currentWaypointIndex = 0;
 
-   private float _waitTime = 1f; // in seconds
+   private float _waitTime = 2f; // in seconds
    private float _waitCounter = 0f;
    private bool _waiting = false;
-   
-   public PatrolTask(Transform[] wayPoints, Transform transform)
+   private float _speed;
+   public PatrolTask(Transform[] wayPoints, Transform transform, float speed)
    {
       _transform = transform;
       _wayPoints = wayPoints;
       _animator = transform.GetComponentInChildren<Animator>();
+      _speed = speed;
    }
 
    public override NodeState Evaluate()
@@ -60,7 +61,7 @@ public class PatrolTask : BTNode
             
             _transform.position = Vector3.MoveTowards(
                _transform.position,
-               wp.position, GuardTree.speed * Time.deltaTime);
+               wp.position, _speed * Time.deltaTime);
             _transform.LookAt(wp.position);
          }
       }

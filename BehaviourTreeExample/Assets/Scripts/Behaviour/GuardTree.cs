@@ -12,8 +12,8 @@ public class GuardTree : Tree
    public Transform[] weaponsArray;
    public LayerMask playerMask = 1 << 6;
 
-   public static float detectRange = 5f;
-   public static float speed = 2f;
+   public static float detectRange = 10f;
+   public float speed = 2f;
 
    protected override BTNode InitTree()
    {
@@ -25,25 +25,34 @@ public class GuardTree : Tree
             new DetectTask(guardTransform, playerTransform, playerMask),
             
             //Checking if agent has weapon
-            /*new Selector(new List<BTNode>
+            //Retrieve weapon
+            new Selector(new List<BTNode>
             {
-               new Inverter(new HasObject("weapon")),
+               new HasObject("weapon"),
                new FindObject("weapon", weaponsArray),
             }),
+            
             new Sequence(new List<BTNode>
             {
-               //Attacking/Chasing Nodes
-            }),*/
+               new MoveToTask(guardTransform, "weapon", speed),
+               new PickUpTask(guardTransform, "weapon"),
+            }),
             
-            new MoveToTask(guardTransform, "target")
+            new MoveToTask(guardTransform, "target", speed)
+            //if In FOV RANGE
+            //if in attackRange 
+            //Attack
+            //not in range
+            //chase
+            
          }),
+         //new WaitTask(1f),
          new Sequence(new List<BTNode>
          {
-            new PatrolTask(wayPoints, guardTransform)
+            new PatrolTask(wayPoints, guardTransform, speed)
          })
          //new PatrolTask(wayPoints, guardTransform),
       });
-
       return root;
    }
 }

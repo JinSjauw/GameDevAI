@@ -3,27 +3,25 @@ using System.Collections.Generic;
 using BehaviourTree;
 using UnityEngine;
 
-public class FindObject : BTNode
+public class HasObject : BTNode
 {
     private string _targetObject;
-    private Transform[] _objectList;
-    public FindObject(string targetObject, Transform[] objectList)
+    public HasObject(string targetObject)
     {
         _targetObject = targetObject;
-        _objectList = objectList;
     }
 
     public override NodeState Evaluate()
     {
-        var selectedObject = _objectList[Random.Range(0, _objectList.Length - 1)];
+        var targetObject = GetData(_targetObject);
         
-        if (selectedObject != null)
-        { 
-            SetData(_targetObject, selectedObject);
-            
+        if (targetObject != null)
+        {
+            //Debug.Log("Has Object! " + targetObject);
             _state = NodeState.SUCCESS;
             return _state;
         }
+
         _state = NodeState.FAILURE;
         return _state;
     }
