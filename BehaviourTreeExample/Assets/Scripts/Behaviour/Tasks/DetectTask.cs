@@ -10,11 +10,13 @@ public class DetectTask : BTNode
     private Transform _agent;
     private Transform _target;
     private string _targetKey;
+    private float _range;
     private bool detectedOnce = false;
 
-    public DetectTask(Transform agent, string targetKey)
+    public DetectTask(Transform agent, string targetKey, float range)
     {
         _agent = agent;
+        _range = range;
         _targetKey = targetKey;
     }
 
@@ -29,24 +31,13 @@ public class DetectTask : BTNode
         }
         
         float distance = Vector3.Distance(_agent.position, _target.position);
-        if (distance < GuardTree.detectRange)
+        if (distance < _range)
         {
             detectedOnce = true;
             _state = NodeState.SUCCESS;
             return _state;
-            //Need to make this an FOV
-            /*Collider[] colliders = Physics.OverlapSphere(_agent.position, GuardTree.detectRange, _targetLayer);
-        
-            if (colliders.Length > 0)
-            {
-                //Debug.Log("Target Set! : " + colliders[0].transform);
-                SetRootData("target", colliders[0].transform);
-                detectedOnce = true;
-                _state = NodeState.SUCCESS;
-                return _state;
-            }*/
         }
-        else if(distance > GuardTree.detectRange && detectedOnce)
+        else if(distance > _range && detectedOnce)
         {
             //Debug.Log("Out of range");
             _state = NodeState.SUCCESS;

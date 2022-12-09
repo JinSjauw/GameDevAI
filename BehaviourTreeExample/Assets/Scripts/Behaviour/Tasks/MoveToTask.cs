@@ -20,6 +20,15 @@ public class MoveToTask : BTNode
         _animator = agent.GetComponentInChildren<Animator>();
     }
     
+    public MoveToTask(NavMeshAgent agent, Transform target, float range)
+    {
+        _agent = agent;
+        _target = target;
+        _targetKey = "";
+        _range = range;
+        _animator = agent.GetComponentInChildren<Animator>();
+    }
+    
     public MoveToTask(NavMeshAgent agent, string target)
     {
         _agent = agent;
@@ -27,11 +36,16 @@ public class MoveToTask : BTNode
         _range = 1f;
         _animator = agent.GetComponentInChildren<Animator>();
     }
+    
+    
 
     public override NodeState Evaluate()
     {
-        _target = (Transform)GetData(_targetKey);
-        
+        if (_targetKey != "")
+        {
+            _target = (Transform)GetData(_targetKey);
+        }
+
         if (_target == null)
         {
             _state = NodeState.FAILURE;
@@ -43,13 +57,15 @@ public class MoveToTask : BTNode
         {
             Debug.Log(" Target Reached " + _target.name);
             _animator.SetBool("isWalking", false);
+            _agent.isStopped = true;
             _state = NodeState.SUCCESS;
             return _state;
         }
         
-        if(distance > 0.01f)
+        if(distance > _range)
         {
             _animator.SetBool("isWalking", true);
+            _agent.isStopped = false;
             _agent.destination = _target.position;
         }
         

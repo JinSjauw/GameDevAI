@@ -11,8 +11,9 @@ public class AttackTask : BTNode
     private Animator _animator;
     private int _attackDamage;
     private float _range;
+    private IDamageable attackTarget;
     
-    private float _waitTime = .4f; // in seconds
+    private float _waitTime = 1f; // in seconds
     private float _waitCounter = 0f;
     private bool _waiting = false;
     
@@ -29,11 +30,12 @@ public class AttackTask : BTNode
     {
         if (_waiting)
         {
+            attackTarget.state = DamageState.ALIVE;
             _waitCounter += Time.deltaTime;
             if (_waitCounter >= _waitTime)
             {
+                _waitCounter = 0f;
                 _waiting = false;
-                //_animator.SetBool("Attack", false);
             }
         }
         else
@@ -47,7 +49,7 @@ public class AttackTask : BTNode
             }
         
             //Attack
-            IDamageable attackTarget = target.GetComponent<IDamageable>();
+            attackTarget = target.GetComponent<IDamageable>();
         
             if (attackTarget == null)
             {
@@ -66,7 +68,7 @@ public class AttackTask : BTNode
                 }
             }
         
-            if (Vector3.Distance(_agent.position, target.position) < _range)
+            if (Vector3.Distance(_agent.position, target.position) < _range && attackTarget.state != DamageState.ATTACKED)
             {
                 _waiting = true;
                 _animator.SetTrigger("Attack");
@@ -75,7 +77,6 @@ public class AttackTask : BTNode
                 _state = NodeState.SUCCESS;
                 return _state;
             }
-            
         }
         _state = NodeState.FAILURE;
         return _state;

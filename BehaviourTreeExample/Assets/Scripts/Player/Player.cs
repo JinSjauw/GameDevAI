@@ -18,12 +18,12 @@ public class Player : MonoBehaviour, IDamageable
     private Vector3 moveDirection;
     private Collider mainCollider;
     
-    public bool isAttacked { get; set; }
-    public bool isDead{ get; set; }
+    public DamageState state { get; set; }
 
     // Start is called before the first frame update
     void Start()
     {
+        state = DamageState.ALIVE;
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
         mainCollider = GetComponent<Collider>();
@@ -47,8 +47,6 @@ public class Player : MonoBehaviour, IDamageable
     // Update is called once per frame
     void Update()
     {
-        if (isDead || isAttacked) { return; }
-        
         vert = Input.GetAxis("Vertical");
         hor = Input.GetAxis("Horizontal");
         Vector3 forwardDirection = Vector3.Scale(new Vector3(1, 0, 1), Camera.transform.forward);
@@ -59,10 +57,6 @@ public class Player : MonoBehaviour, IDamageable
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(moveDirection.normalized, Vector3.up), rotationSpeed * Time.deltaTime);
         }
         transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
-
-        //bool isMoving = hor != 0 || vert != 0;
-        
-        //ChangeAnimation(isMoving ? "Walk Crouch" : "Crouch Idle", isMoving ? 0.05f : 0.15f);
     }
 
     public void TakeDamage(Transform attacker, int damage)
@@ -70,9 +64,10 @@ public class Player : MonoBehaviour, IDamageable
         animator.enabled = false;
 
         hp -= damage;
-        
+        state = DamageState.ATTACKED;
         if (hp < 0)
         {
+            state = DamageState.DEAD;
             //Dying
             var cols = GetComponentsInChildren<Collider>();
             foreach (Collider col in cols)
@@ -90,7 +85,6 @@ public class Player : MonoBehaviour, IDamageable
             }
             ragdoll.transform.SetParent(null);
             gameObject.SetActive(false);
-            isDead = true;
         }
     }
 

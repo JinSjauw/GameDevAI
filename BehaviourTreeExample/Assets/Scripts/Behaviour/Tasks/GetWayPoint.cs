@@ -6,13 +6,15 @@ using UnityEngine;
 public class GetWayPoint : BTNode
 {
     private Transform _agent;
+    private float _range;
     private Transform[] _wayPoints;
     private Transform _currentWaypoint;
     private int _wayPointIndex = 0;
     
-    public GetWayPoint(Transform agent, Transform[] waypoints)
+    public GetWayPoint(Transform agent, Transform[] waypoints, float range)
     {
         _agent = agent;
+        _range = range;
         _wayPoints = waypoints;
     }
 
@@ -24,7 +26,7 @@ public class GetWayPoint : BTNode
             return _state;
         }
         
-        if (_currentWaypoint != null && Vector3.Distance(_agent.position, _currentWaypoint.position) >= .5f)
+        if (_currentWaypoint != null && Vector3.Distance(_agent.position, _currentWaypoint.position) >= _range)
         {
             _state = NodeState.SUCCESS;
             return _state;

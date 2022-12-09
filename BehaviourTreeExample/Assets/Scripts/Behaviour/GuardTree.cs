@@ -2,22 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 
 using BehaviourTree;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using Tree = BehaviourTree.Tree;
 
 public class GuardTree : Tree
 {
-   public Transform guardTransform, guardHand, guardEyes;
-   public NavMeshAgent guardAgent;
-   public Transform[] wayPoints;
-   public Transform[] weaponsArray;
-   public float attackRange = 4f;
-   public LayerMask playerMask = 1 << 6;
-   public LayerMask obstacleMask = 1 << 8;
-
-   public static float detectRange = 8f;
-
+   [SerializeField] private Transform _guardTransform, _guardHand, _guardEyes;
+   [SerializeField] private NavMeshAgent _guardAgent;
+   [SerializeField] private TextMeshProUGUI _stateText;
+   [SerializeField] private Transform[] _wayPoints;
+   [SerializeField] private Transform[] _weaponsArray;
+   [SerializeField] private float _attackRange = 4f;
+   [SerializeField] private LayerMask _playerMask = 1 << 6;
+   [SerializeField] private LayerMask _obstacleMask = 1 << 8;
+   [SerializeField] private float _detectRange = 8f;
+    
    protected override BTNode InitTree()
    {
       BTNode root = new Selector(new List<BTNode>()
@@ -26,42 +27,54 @@ public class GuardTree : Tree
          {
             //Detect Player
             //new DetectTask(guardTransform, playerTransform, playerMask),
+            new SetState(_guardTransform, AgentState.IDLE, _stateText),
             new Selector(new List<BTNode>
             {
-               new DetectTask(guardTransform, "target"),
-               new FOV(guardEyes, 120f, detectRange, playerMask, obstacleMask),
+               new DetectTask(_guardTransform, "target", _detectRange),
+               new FOV(_guardEyes, 120f, _detectRange, _playerMask, _obstacleMask),
             }),
+            new SetState(_guardTransform, AgentState.ALERT, _stateText),
             
             //Checking if agent has weapon
             //Retrieve weapon
             new Selector(new List<BTNode>
             {
-               new HasObject(guardHand, "weapon"),
+               new HasObject(_guardHand, "weapon"),
                new Sequence(new List<BTNode>
                {
-                  new FindObject("weapon", weaponsArray),
-                  new MoveToTask(guardAgent, "weapon"),
-                  new PickUpTask(guardTransform,guardHand, "weapon"),
+                  new FindObject("weapon", _weaponsArray),
+                  new MoveToTask(_guardAgent, "weapon"),
+                  new PickUpTask(_guardTransform,_guardHand, "weapon"),
                })
             }),
             
             new Sequence(new List<BTNode>
             {
-               new FOV(guardEyes, 120f, detectRange, playerMask, obstacleMask),
+               new FOV(_guardEyes, 120f, _detectRange, _playerMask, _obstacleMask),
                new Selector(new List<BTNode>
                {
                   //Attack()
-                  new AttackTask(guardTransform, "target", attackRange, 20),
+                  new Sequence(new List<BTNode>
+                  {
+                     new SetState(_guardTransform, AgentState.ATTACKING, _stateText),
+                     new AttackTask(_guardTransform, "target", _attackRange, 20),
+                  }),
                   //Chase
-                  new MoveToTask(guardAgent, "target", attackRange),
+                  new Sequence(new List<BTNode>
+                  {
+                     new SetState(_guardTransform, AgentState.CHASING, _stateText),
+                     new MoveToTask(_guardAgent, "target", _attackRange - .5f),
+                  }),
                }),
             }),
 
          }),
+         
          new Sequence(new List<BTNode>
          {
-            new GetWayPoint(guardTransform, wayPoints),
-            new MoveToTask(guardAgent, "waypoint"),
+            new SetState(_guardTransform, AgentState.PATROLLING, _stateText),
+            new GetWayPoint(_guardTransform, _wayPoints, 1f),
+            new MoveToTask(_guardAgent, "waypoint"),
          })
       });
       return root;

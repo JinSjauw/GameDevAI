@@ -40,7 +40,7 @@ public class FOV : BTNode
         else
         {
             //FOV Calculations
-            Debug.Log("DOING FOV CALC");
+            //Debug.Log("DOING FOV CALC");
             Collider[] colliders = Physics.OverlapSphere(_origin.position, _radius, _targetMask);
 
             if (colliders.Length != 0)

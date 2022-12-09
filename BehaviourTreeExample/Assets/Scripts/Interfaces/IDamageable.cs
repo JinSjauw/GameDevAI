@@ -2,10 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum DamageState
+{
+    ALIVE = 0,
+    ATTACKED = 1,
+    DEAD = 2,
+}
+
 public interface IDamageable
 {
     void TakeDamage(Transform attacker, int damage);
-    bool isAttacked { get; set; }
-    bool isDead { get; set; }
+
+    DamageState state { get; set; }
 }
     
