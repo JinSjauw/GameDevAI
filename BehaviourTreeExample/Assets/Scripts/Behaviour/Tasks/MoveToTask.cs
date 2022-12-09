@@ -2,29 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using BehaviourTree;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MoveToTask : BTNode
 {
-    private Transform _agent;
+    private NavMeshAgent _agent;
     private Transform _target;
+    private float _range;
     private string _targetKey;
     private Animator _animator;
-    private float _speed;
-    public MoveToTask(Transform agent, string target, float speed)
+    private float _waitCounter = 0;
+    public MoveToTask(NavMeshAgent agent, string target, float range)
     {
         _agent = agent;
         _targetKey = target;
+        _range = range;
         _animator = agent.GetComponentInChildren<Animator>();
-        _speed = speed;
     }
     
-    public MoveToTask(Transform agent, Transform targetTransform)
+    public MoveToTask(NavMeshAgent agent, string target)
     {
         _agent = agent;
-        _target = targetTransform;
+        _targetKey = target;
+        _range = 1f;
         _animator = agent.GetComponentInChildren<Animator>();
     }
-        
+
     public override NodeState Evaluate()
     {
         _target = (Transform)GetData(_targetKey);
@@ -34,25 +37,20 @@ public class MoveToTask : BTNode
             _state = NodeState.FAILURE;
             return _state;
         }
-        
-        float distance = Vector3.Distance(_agent.position, _target.position);
-        
-        if (distance <= 1f)
+
+        float distance = Vector3.Distance(_agent.transform.position, _target.position);
+        if (distance <= _range)
         {
-            //_animator.SetBool("isWalking", false);
-            //_animator.SetBool("isIdle", true);
-            
-            Debug.Log(" Target Reached");
-            
+            Debug.Log(" Target Reached " + _target.name);
+            _animator.SetBool("isWalking", false);
             _state = NodeState.SUCCESS;
             return _state;
         }
-        else if(distance > 0.01f)
+        
+        if(distance > 0.01f)
         {
             _animator.SetBool("isWalking", true);
-            _agent.position = Vector3.MoveTowards(_agent.position, _target.position, _speed * Time.deltaTime);
-            Debug.Log("Walkin!: " + _target.position);
-            _agent.LookAt(_target.position);
+            _agent.destination = _target.position;
         }
         
         _state = NodeState.RUNNING;

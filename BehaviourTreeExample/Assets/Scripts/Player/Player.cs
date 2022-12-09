@@ -10,12 +10,17 @@ public class Player : MonoBehaviour, IDamageable
     [SerializeField] private float moveSpeed = 3;
     [SerializeField] private float deathForce = 1000;
     [SerializeField] private GameObject ragdoll;
+    [SerializeField] private int hp;
     private Rigidbody rb;
     private Animator animator;
     private float vert = 0;
     private float hor = 0;
     private Vector3 moveDirection;
     private Collider mainCollider;
+    
+    public bool isAttacked { get; set; }
+    public bool isDead{ get; set; }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,10 +28,10 @@ public class Player : MonoBehaviour, IDamageable
         animator = GetComponentInChildren<Animator>();
         mainCollider = GetComponent<Collider>();
         var rigidBodies = GetComponentsInChildren<Rigidbody>();
-        foreach (Rigidbody rib in rigidBodies)
+        foreach (Rigidbody rb in rigidBodies)
         {
-            rib.isKinematic = true;
-            rib.useGravity = false;
+            rb.isKinematic = true;
+            rb.useGravity = false;
         }
 
         var cols = GetComponentsInChildren<Collider>();
@@ -42,6 +47,8 @@ public class Player : MonoBehaviour, IDamageable
     // Update is called once per frame
     void Update()
     {
+        if (isDead || isAttacked) { return; }
+        
         vert = Input.GetAxis("Vertical");
         hor = Input.GetAxis("Horizontal");
         Vector3 forwardDirection = Vector3.Scale(new Vector3(1, 0, 1), Camera.transform.forward);
@@ -53,38 +60,41 @@ public class Player : MonoBehaviour, IDamageable
         }
         transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
 
-        bool isMoving = hor != 0 || vert != 0;
-        ChangeAnimation(isMoving ? "Walk Crouch" : "Crouch Idle", isMoving ? 0.05f : 0.15f);
-    }
-
-    private void FixedUpdate()
-    {
+        //bool isMoving = hor != 0 || vert != 0;
         
+        //ChangeAnimation(isMoving ? "Walk Crouch" : "Crouch Idle", isMoving ? 0.05f : 0.15f);
     }
 
-    public void TakeDamage(GameObject attacker, int damage)
+    public void TakeDamage(Transform attacker, int damage)
     {
         animator.enabled = false;
-        var cols = GetComponentsInChildren<Collider>();
-        foreach (Collider col in cols)
-        {
-            col.enabled = true;
-        }
-        mainCollider.enabled = false;
 
-        var rigidBodies = GetComponentsInChildren<Rigidbody>();
-        foreach (Rigidbody rib in rigidBodies)
+        hp -= damage;
+        
+        if (hp < 0)
         {
-            rib.isKinematic = false;
-            rib.useGravity = true;
-            rib.AddForce(Vector3.Scale(new Vector3(1,0.5f,1),(transform.position - attacker.transform.position).normalized * deathForce));
+            //Dying
+            var cols = GetComponentsInChildren<Collider>();
+            foreach (Collider col in cols)
+            {
+                col.enabled = true;
+            }
+            mainCollider.enabled = false;
+        
+            var rigidBodies = GetComponentsInChildren<Rigidbody>();
+            foreach (Rigidbody rb in rigidBodies)
+            {
+                rb.isKinematic = false;
+                rb.useGravity = true;
+                rb.AddForce(Vector3.Scale(new Vector3(1,0.5f,1),(transform.position - attacker.position).normalized * deathForce));
+            }
+            ragdoll.transform.SetParent(null);
+            gameObject.SetActive(false);
+            isDead = true;
         }
-        ragdoll.transform.SetParent(null);
-
-        gameObject.SetActive(false);
     }
 
-    private void GetComponentsRecursively<T>(GameObject obj, ref List<T> components)
+    /*private void GetComponentsRecursively<T>(GameObject obj, ref List<T> components)
     {
         T component = obj.GetComponent<T>();
         if(component != null)
@@ -96,13 +106,13 @@ public class Player : MonoBehaviour, IDamageable
             if(t.gameObject == obj) { continue; }
             GetComponentsRecursively<T>(t.gameObject, ref components);
         }
-    }
+    }*/
 
-    private void ChangeAnimation(string animationName, float fadeTime)
+    /*private void ChangeAnimation(string animationName, float fadeTime)
     {
         if (!animator.GetCurrentAnimatorStateInfo(0).IsName(animationName) && !animator.IsInTransition(0))
         {
             animator.CrossFade(animationName, fadeTime);
         }
-    }
+    }*/
 }

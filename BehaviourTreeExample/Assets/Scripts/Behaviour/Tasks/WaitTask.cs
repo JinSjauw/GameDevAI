@@ -17,10 +17,11 @@ public class WaitTask : BTNode
     public override NodeState Evaluate()
     {
         _waitCounter += Time.deltaTime;
+        Debug.Log(_waitCounter);
         if (_waitCounter >= _waitTime)
         {
             _waitCounter = 0f;
-            
+            Debug.Log("TIMER IS OVER");
             _state = NodeState.SUCCESS;
             return _state;
         }

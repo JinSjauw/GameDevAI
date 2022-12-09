@@ -3,17 +3,20 @@ using System.Collections.Generic;
 
 using BehaviourTree;
 using UnityEngine;
+using UnityEngine.AI;
 using Tree = BehaviourTree.Tree;
 
 public class GuardTree : Tree
 {
-   public Transform guardTransform, playerTransform;
+   public Transform guardTransform, guardHand, guardEyes;
+   public NavMeshAgent guardAgent;
    public Transform[] wayPoints;
    public Transform[] weaponsArray;
+   public float attackRange = 4f;
    public LayerMask playerMask = 1 << 6;
+   public LayerMask obstacleMask = 1 << 8;
 
-   public static float detectRange = 10f;
-   public float speed = 2f;
+   public static float detectRange = 8f;
 
    protected override BTNode InitTree()
    {
@@ -22,36 +25,44 @@ public class GuardTree : Tree
          new Sequence(new List<BTNode>
          {
             //Detect Player
-            new DetectTask(guardTransform, playerTransform, playerMask),
+            //new DetectTask(guardTransform, playerTransform, playerMask),
+            new Selector(new List<BTNode>
+            {
+               new DetectTask(guardTransform, "target"),
+               new FOV(guardEyes, 120f, detectRange, playerMask, obstacleMask),
+            }),
             
             //Checking if agent has weapon
             //Retrieve weapon
             new Selector(new List<BTNode>
             {
-               new HasObject("weapon"),
-               new FindObject("weapon", weaponsArray),
+               new HasObject(guardHand, "weapon"),
+               new Sequence(new List<BTNode>
+               {
+                  new FindObject("weapon", weaponsArray),
+                  new MoveToTask(guardAgent, "weapon"),
+                  new PickUpTask(guardTransform,guardHand, "weapon"),
+               })
             }),
             
             new Sequence(new List<BTNode>
             {
-               new MoveToTask(guardTransform, "weapon", speed),
-               new PickUpTask(guardTransform, "weapon"),
+               new FOV(guardEyes, 120f, detectRange, playerMask, obstacleMask),
+               new Selector(new List<BTNode>
+               {
+                  //Attack()
+                  new AttackTask(guardTransform, "target", attackRange, 20),
+                  //Chase
+                  new MoveToTask(guardAgent, "target", attackRange),
+               }),
             }),
-            
-            new MoveToTask(guardTransform, "target", speed)
-            //if In FOV RANGE
-            //if in attackRange 
-            //Attack
-            //not in range
-            //chase
-            
+
          }),
-         //new WaitTask(1f),
          new Sequence(new List<BTNode>
          {
-            new PatrolTask(wayPoints, guardTransform, speed)
+            new GetWayPoint(guardTransform, wayPoints),
+            new MoveToTask(guardAgent, "waypoint"),
          })
-         //new PatrolTask(wayPoints, guardTransform),
       });
       return root;
    }

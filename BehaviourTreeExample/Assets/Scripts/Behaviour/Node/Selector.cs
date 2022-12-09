@@ -24,12 +24,13 @@ namespace BehaviourTree
                         return _state;
                     case NodeState.RUNNING:
                         _state = NodeState.RUNNING;
+                        anyChildRunning = true;
                         return _state;
                     default:
                        continue;
                 }
             }
-            _state = NodeState.FAILURE;
+            _state = anyChildRunning ? NodeState.RUNNING : NodeState.FAILURE;
             return _state;
         }
     }    
