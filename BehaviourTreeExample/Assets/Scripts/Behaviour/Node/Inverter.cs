@@ -22,14 +22,12 @@ public class Inverter : BTNode
         if (childState == NodeState.SUCCESS)
         {
             _state = NodeState.FAILURE;
-            Debug.Log("Returning False");
             return _state;
         }
 
         if (childState == NodeState.FAILURE)
         {
             _state = NodeState.SUCCESS;
-            Debug.Log("Returning True");
             return _state;
         }
 

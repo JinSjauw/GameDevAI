@@ -18,7 +18,14 @@ public class NinjaTree : Tree
     [SerializeField] private LayerMask _obstructionLayer = 1 << 8;
     protected override BTNode InitTree()
     {
+        //Creating a objectPool for smokes
         _objectPool = FindObjectOfType<ObjectPool>();
+        for (int i = 0; i < 5; i++)
+        {
+           GameObject smoke = _objectPool.GetObject(_smokeBomb);
+           smoke.SetActive(false);
+        }
+
         BTNode root = new Selector(new List<BTNode>()
       {
           new Sequence(new List<BTNode>
@@ -37,11 +44,6 @@ public class NinjaTree : Tree
           //Follow Player as fallback
           new Sequence(new List<BTNode>
           {
-              new Inverter(new Selector(new List<BTNode>
-              {
-                  new CheckState(_guardTransform, AgentState.ATTACKING),
-                  new CheckState(_guardTransform, AgentState.CHASING),
-              })),
               new SetState(transform, AgentState.PATROLLING, _stateText),
               new MoveToTask(_agent, _playerTransform, _range),
           })

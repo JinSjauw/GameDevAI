@@ -15,10 +15,11 @@ public class GuardTree : Tree
    [SerializeField] private Transform[] _wayPoints;
    [SerializeField] private Transform[] _weaponsArray;
    [SerializeField] private float _attackRange = 4f;
+   [SerializeField] private int _attackDamage;
    [SerializeField] private LayerMask _playerMask = 1 << 6;
    [SerializeField] private LayerMask _obstacleMask = 1 << 8;
    [SerializeField] private float _detectRange = 8f;
-    
+
    protected override BTNode InitTree()
    {
       BTNode root = new Selector(new List<BTNode>()
@@ -26,7 +27,6 @@ public class GuardTree : Tree
          new Sequence(new List<BTNode>
          {
             //Detect Player
-            //new DetectTask(guardTransform, playerTransform, playerMask),
             new SetState(_guardTransform, AgentState.IDLE, _stateText),
             new Selector(new List<BTNode>
             {
@@ -48,30 +48,29 @@ public class GuardTree : Tree
                })
             }),
             
-            new Sequence(new List<BTNode>
+            new Selector(new List<BTNode>
             {
-               new FOV(_guardEyes, 120f, _detectRange, _playerMask, _obstacleMask),
-               new Selector(new List<BTNode>
+               //Attack
+               new Sequence(new List<BTNode>
                {
-                  //Attack()
-                  new Sequence(new List<BTNode>
-                  {
-                     new SetState(_guardTransform, AgentState.ATTACKING, _stateText),
-                     new AttackTask(_guardTransform, "target", _attackRange, 20),
-                  }),
-                  //Chase
-                  new Sequence(new List<BTNode>
-                  {
-                     new SetState(_guardTransform, AgentState.CHASING, _stateText),
-                     new MoveToTask(_guardAgent, "target", _attackRange - .5f),
-                  }),
+                  new FOV(_guardEyes, 360f, _attackRange, _playerMask, _obstacleMask),
+                  new SetState(_guardTransform, AgentState.ATTACKING, _stateText),
+                  new AttackTask(_guardTransform, "target", _attackRange, _attackDamage),
                }),
-            }),
-
+               
+               //Chase
+               new Sequence(new List<BTNode>
+               {
+                  new FOV(_guardEyes, 120f, _detectRange, _playerMask, _obstacleMask),
+                  new SetState(_guardTransform, AgentState.CHASING, _stateText),
+                  new MoveToTask(_guardAgent, "target", _attackRange - .5f),
+               }),
+            })
          }),
-         
+         //Fallback PatrolTask
          new Sequence(new List<BTNode>
          {
+            new Inverter(new CheckState(_guardTransform, AgentState.ATTACKING)),
             new SetState(_guardTransform, AgentState.PATROLLING, _stateText),
             new GetWayPoint(_guardTransform, _wayPoints, 1f),
             new MoveToTask(_guardAgent, "waypoint"),

@@ -32,11 +32,6 @@ public class LaunchSmokeTask : BTNode
             _state = NodeState.FAILURE;
             return _state;
         }
-        
-        //Launch Grenade once
-        
-        //Launch grenade
-        Debug.Log("LAUNCHING SMOKE");
         GameObject smokeGrenade = _objectPool.GetObject(_smokeBomb);
         
         smokeGrenade.GetComponent<Rigidbody>().isKinematic = false;
@@ -46,8 +41,6 @@ public class LaunchSmokeTask : BTNode
         Rigidbody rb = smokeGrenade.GetComponent<Rigidbody>();
         rb.velocity = _velocity * smokeGrenade.transform.forward;
         rb.velocity += _velocity * smokeGrenade.transform.up;
-        
-        _waiting = true;
 
         SetRootData("nextCover", true);
         _state = NodeState.SUCCESS;

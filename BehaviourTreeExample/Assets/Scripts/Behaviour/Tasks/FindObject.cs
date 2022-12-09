@@ -20,14 +20,11 @@ public class FindObject : BTNode
         {
            selectedObject = _objectList[Random.Range(0, _objectList.Length)];
            SetRootData(_targetObject, selectedObject);
-           //Debug.Log("Selected Object !: " + selectedObject.name);
            _state = NodeState.SUCCESS;
            return _state;
         }
-        //Debug.Log(selectedObject.name);
         if (selectedObject != null)
         {
-            Debug.Log("Selected Object: " + selectedObject.name);
             _state = NodeState.SUCCESS;
             return _state;
         }

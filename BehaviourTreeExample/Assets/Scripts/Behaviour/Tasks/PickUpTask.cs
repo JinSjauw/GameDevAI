@@ -18,17 +18,13 @@ public class PickUpTask : BTNode
         _agentContainer = agentContainer;
         _targetKey = targetKey;
         _animator = agent.GetComponentInChildren<Animator>();
-        //_target = (Transform)GetData(target);
     }
 
     public override NodeState Evaluate()
     {
         _target = (Transform)GetData(_targetKey);
-        Debug.Log("IN Pick Up: " + _target);
         if (_target.IsChildOf(_agentContainer))
         {
-            Debug.Log("Already Picked Up");
-            ClearData(_targetKey);
             _state = NodeState.SUCCESS;
             return _state;
         }
@@ -36,7 +32,6 @@ public class PickUpTask : BTNode
         float distance = Vector3.Distance(_agent.position, _target.position);
         if (distance <= 1f)
         {
-            Debug.Log("Picked Up: " + _target.name);
             _target.parent = _agentContainer;
             _target.localPosition = Vector3.zero;
             _target.GetComponent<Rigidbody>().isKinematic = true;

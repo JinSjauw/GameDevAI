@@ -5,7 +5,7 @@ using UnityEngine;
 public class ObjectPool : MonoBehaviour
 {
     private Dictionary<string, Queue<GameObject>> objectPool = new Dictionary<string, Queue<GameObject>>();
-
+    
     public GameObject GetObject(GameObject gameObject) 
     {
         if(objectPool.TryGetValue(gameObject.name, out Queue<GameObject> objectList)) 

@@ -32,7 +32,7 @@ public class FindCover : BTNode
             _state = NodeState.SUCCESS;
             return _state;
         }
-
+        
         //Iterate through the Array
         //Choose one based proximity to the player and LOS on the ENEMY
         List<Transform> safePoints = new List<Transform>();
@@ -70,7 +70,6 @@ public class FindCover : BTNode
         {
             SetRootData("cover", bestCover);
             SetRootData("nextCover", false);
-            Debug.Log("Set Cover!");
             _state = NodeState.SUCCESS;
             return _state;
         }

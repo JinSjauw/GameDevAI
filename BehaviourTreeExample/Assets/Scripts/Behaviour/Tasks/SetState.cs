@@ -64,7 +64,6 @@ public class SetState : BTNode
             _state = NodeState.SUCCESS;
             return _state;
         }
-
         _state = NodeState.FAILURE;
         return _state;
     }

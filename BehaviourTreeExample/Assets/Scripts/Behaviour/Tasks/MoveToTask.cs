@@ -37,8 +37,6 @@ public class MoveToTask : BTNode
         _animator = agent.GetComponentInChildren<Animator>();
     }
     
-    
-
     public override NodeState Evaluate()
     {
         if (_targetKey != "")
@@ -55,7 +53,6 @@ public class MoveToTask : BTNode
         float distance = Vector3.Distance(_agent.transform.position, _target.position);
         if (distance <= _range)
         {
-            Debug.Log(" Target Reached " + _target.name);
             _animator.SetBool("isWalking", false);
             _agent.isStopped = true;
             _state = NodeState.SUCCESS;

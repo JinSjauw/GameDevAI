@@ -39,8 +39,6 @@ public class FOV : BTNode
         }
         else
         {
-            //FOV Calculations
-            //Debug.Log("DOING FOV CALC");
             Collider[] colliders = Physics.OverlapSphere(_origin.position, _radius, _targetMask);
 
             if (colliders.Length != 0)
@@ -56,12 +54,10 @@ public class FOV : BTNode
                     {
                         seeTarget = true;
                         SetRootData("target", _target);
-                        //Do stuff here
                     }
                     else
                     {
                         seeTarget = false;
-                        //Do stuff here
                     }
                 }
                 else
@@ -77,11 +73,9 @@ public class FOV : BTNode
         switch (seeTarget)
         {
             case true:
-                Debug.Log("SEES PLAYER");
                 _state = NodeState.SUCCESS;
                 return _state;
             case false:
-                Debug.Log("DOESN'T SEE PLAYER");
                 ClearData("target");
                 _state = NodeState.FAILURE;
                 return _state;

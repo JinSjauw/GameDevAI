@@ -39,7 +39,6 @@ public class DetectTask : BTNode
         }
         else if(distance > _range && detectedOnce)
         {
-            //Debug.Log("Out of range");
             _state = NodeState.SUCCESS;
             return _state;
         }

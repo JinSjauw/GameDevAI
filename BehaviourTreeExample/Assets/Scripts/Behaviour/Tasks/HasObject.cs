@@ -19,7 +19,6 @@ public class HasObject : BTNode
         
         if (targetObject != null && targetObject.IsChildOf(_container))
         {
-            Debug.Log("Has Object! " + targetObject);
             _state = NodeState.SUCCESS;
             return _state;
         }
